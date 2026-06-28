@@ -25,10 +25,10 @@ jobs:
             fi
             cd /home/ec2-user/Guias-Despacho_Sumativa_2
             git pull origin main
-            export S3_BUCKET=${{ secrets.S3_BUCKET }}
-            export S3_ENABLED=true
-            export AWS_REGION=us-east-1
-            export APP_SECURITY_ENABLED=false
+            echo "S3_BUCKET=${{ secrets.S3_BUCKET }}" > .env
+            echo "S3_ENABLED=true" >> .env
+            echo "AWS_REGION=us-east-1" >> .env
+            echo "APP_SECURITY_ENABLED=false" >> .env
             sudo mkdir -p /root/.docker/cli-plugins
             sudo curl -SL https://github.com/docker/buildx/releases/download/v0.17.0/buildx-v0.17.0.linux-amd64 -o /root/.docker/cli-plugins/docker-buildx
             sudo chmod +x /root/.docker/cli-plugins/docker-buildx

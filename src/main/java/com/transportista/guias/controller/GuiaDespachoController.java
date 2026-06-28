@@ -72,10 +72,11 @@ public class GuiaDespachoController {
     @GetMapping("/{id}/descargar")
     public ResponseEntity<byte[]> descargar(@PathVariable Long id) {
         byte[] contenido = service.descargar(id);
+        String numeroPedido = service.obtenerEntidad(id).getNumeroPedido();
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_PLAIN)
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        ContentDisposition.attachment().filename("guia-" + id + ".txt").build().toString())
+                        ContentDisposition.attachment().filename(numeroPedido + ".txt").build().toString())
                 .body(contenido);
     }
 }

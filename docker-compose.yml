@@ -11,6 +11,7 @@ services:
       S3_ENABLED: "false"
       S3_BUCKET: "guias-despacho-demo"
       AWS_REGION: "us-east-1"
+      APP_SECURITY_ENABLED: "${APP_SECURITY_ENABLED:-true}"
     volumes:
       - guias-data:/data/guias
 

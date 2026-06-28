@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -26,16 +27,23 @@ public class SecurityConfig {
     public static final String ROLE_DESCARGA_GUIA = "DESCARGA_GUIA";
     public static final String ROLE_GESTOR_GUIAS = "GESTOR_GUIAS";
 
+    @Value("${app.security.enabled:true}")
+    private boolean securityEnabled;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/h2-console/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/guias/*/descargar").hasRole(ROLE_DESCARGA_GUIA)
-                        .requestMatchers("/api/guias/**").hasRole(ROLE_GESTOR_GUIAS)
-                        .anyRequest().authenticated()
-                )
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/actuator/health", "/h2-console/**").permitAll();
+                    if (securityEnabled) {
+                        auth.requestMatchers(HttpMethod.GET, "/api/guias/*/descargar").hasRole(ROLE_DESCARGA_GUIA)
+                            .requestMatchers("/api/guias/**").hasRole(ROLE_GESTOR_GUIAS)
+                            .anyRequest().authenticated();
+                    } else {
+                        auth.anyRequest().permitAll();
+                    }
+                })
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .build();

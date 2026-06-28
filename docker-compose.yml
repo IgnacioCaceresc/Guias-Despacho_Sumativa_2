@@ -8,9 +8,9 @@ services:
       SERVER_PORT: 8080
       AZURE_B2C_ISSUER_URI: "https://example.b2clogin.com/example.onmicrosoft.com/B2C_1_signupsignin/v2.0/"
       GUIAS_STORAGE_PATH: "/data/guias"
-      S3_ENABLED: "false"
-      S3_BUCKET: "guias-despacho-demo"
-      AWS_REGION: "us-east-1"
+      S3_ENABLED: "${S3_ENABLED:-false}"
+      S3_BUCKET: "${S3_BUCKET:-guias-despacho-demo}"
+      AWS_REGION: "${AWS_REGION:-us-east-1}"
       APP_SECURITY_ENABLED: "${APP_SECURITY_ENABLED:-true}"
     volumes:
       - guias-data:/data/guias

@@ -43,6 +43,12 @@ public class GuiaDespachoService {
 
     @Transactional(readOnly = true)
     public List<GuiaResponse> consultar(String transportista, LocalDate fecha) {
+        if (transportista == null && fecha == null) {
+            return repository.findAll().stream()
+                    .filter(g -> g.getEstado() != EstadoGuia.ELIMINADA)
+                    .map(GuiaResponse::fromEntity)
+                    .toList();
+        }
         return repository.findByTransportistaIgnoreCaseAndFechaDespachoAndEstadoNot(
                         transportista,
                         fecha,

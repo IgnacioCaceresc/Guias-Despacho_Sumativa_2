@@ -47,8 +47,8 @@ public class GuiaDespachoController {
 
     @GetMapping
     public List<GuiaResponse> consultar(
-            @RequestParam String transportista,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha
+            @RequestParam(required = false) String transportista,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha
     ) {
         return service.consultar(transportista, fecha);
     }

@@ -23,7 +23,7 @@ public class ArchivoGuiaService {
     public Path generarArchivo(GuiaDespacho guia) {
         try {
             Files.createDirectories(storagePath);
-            String fileName = "guia-" + guia.getId() + ".txt";
+            String fileName = guia.getNumeroPedido() + ".txt";
             Path file = storagePath.resolve(fileName);
             Files.writeString(file, contenidoGuia(guia), StandardCharsets.UTF_8);
             return file;

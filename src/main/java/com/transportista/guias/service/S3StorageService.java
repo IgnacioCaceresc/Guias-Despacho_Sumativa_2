@@ -24,10 +24,10 @@ public class S3StorageService {
     }
 
     public S3UploadResponse subir(GuiaDespacho guia, Path archivo) {
-        String key = "guias/%s/%s/guia-%d.txt".formatted(
+        String key = "guias/%s/%s/%s.txt".formatted(
                 guia.getFechaDespacho(),
                 guia.getTransportista().replaceAll("\\s+", "-").toLowerCase(),
-                guia.getId()
+                guia.getNumeroPedido()
         );
 
         if (!properties.enabled()) {

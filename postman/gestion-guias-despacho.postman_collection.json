@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "Gestion Guias Despacho",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "tokenGestor",
+      "value": ""
+    },
+    {
+      "key": "tokenDescarga",
+      "value": ""
+    },
+    {
+      "key": "guiaId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Crear guia",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenGestor}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"numeroPedido\": \"PED-1001\",\n  \"transportista\": \"Transportes Norte\",\n  \"fechaDespacho\": \"2026-06-28\",\n  \"destinatario\": \"Cliente Demo\",\n  \"direccionDestino\": \"Av. Siempre Viva 123\",\n  \"comunaDestino\": \"Santiago\",\n  \"ciudadDestino\": \"Santiago\",\n  \"pesoKg\": 12.5,\n  \"cantidadBultos\": 3,\n  \"observaciones\": \"Entrega en horario de oficina\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/guias",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "guias"]
+        }
+      }
+    },
+    {
+      "name": "Consultar guias",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenGestor}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/guias?transportista=Transportes Norte&fecha=2026-06-28",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "guias"],
+          "query": [
+            {
+              "key": "transportista",
+              "value": "Transportes Norte"
+            },
+            {
+              "key": "fecha",
+              "value": "2026-06-28"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Subir guia a S3",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenGestor}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/guias/{{guiaId}}/subir-s3",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "guias", "{{guiaId}}", "subir-s3"]
+        }
+      }
+    },
+    {
+      "name": "Descargar guia",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenDescarga}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/guias/{{guiaId}}/descargar",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "guias", "{{guiaId}}", "descargar"]
+        }
+      }
+    },
+    {
+      "name": "Eliminar guia",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenGestor}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/guias/{{guiaId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "guias", "{{guiaId}}"]
+        }
+      }
+    }
+  ]
+}

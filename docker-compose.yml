@@ -6,7 +6,7 @@ services:
       - "8080:8080"
     environment:
       SERVER_PORT: 8080
-      AZURE_B2C_ISSUER_URI: "https://example.b2clogin.com/example.onmicrosoft.com/B2C_1_signupsignin/v2.0/"
+      AZURE_B2C_ISSUER_URI: "https://sts.windows.net/1c1bef63-cd8e-4b9e-bf4f-7be6677967ad/"
       GUIAS_STORAGE_PATH: "/data/guias"
       S3_ENABLED: "${S3_ENABLED:-false}"
       S3_BUCKET: "${S3_BUCKET:-guias-despacho-demo}"

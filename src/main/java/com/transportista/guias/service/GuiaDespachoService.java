@@ -20,15 +20,18 @@ public class GuiaDespachoService {
     private final GuiaDespachoRepository repository;
     private final ArchivoGuiaService archivoGuiaService;
     private final S3StorageService s3StorageService;
+    private final GuiaColaService guiaColaService;
 
     public GuiaDespachoService(
             GuiaDespachoRepository repository,
             ArchivoGuiaService archivoGuiaService,
-            S3StorageService s3StorageService
+            S3StorageService s3StorageService,
+            GuiaColaService guiaColaService
     ) {
         this.repository = repository;
         this.archivoGuiaService = archivoGuiaService;
         this.s3StorageService = s3StorageService;
+        this.guiaColaService = guiaColaService;
     }
 
     @Transactional
@@ -38,6 +41,8 @@ public class GuiaDespachoService {
         GuiaDespacho guardada = repository.save(guia);
         Path archivo = archivoGuiaService.generarArchivo(guardada);
         guardada.setArchivoLocal(archivo.toString());
+        boolean enviada = guiaColaService.publicarGuia(guardada, "CREACION");
+        guardada.setEstado(enviada ? EstadoGuia.ENVIADA_COLA : EstadoGuia.ERROR_COLA);
         return GuiaResponse.fromEntity(repository.save(guardada));
     }
 
@@ -74,7 +79,10 @@ public class GuiaDespachoService {
         aplicarDatos(guia, request);
         Path archivo = archivoGuiaService.generarArchivo(guia);
         guia.setArchivoLocal(archivo.toString());
-        return GuiaResponse.fromEntity(repository.save(guia));
+        GuiaDespacho actualizada = repository.save(guia);
+        boolean enviada = guiaColaService.publicarGuia(actualizada, "ACTUALIZACION");
+        actualizada.setEstado(enviada ? EstadoGuia.ENVIADA_COLA : EstadoGuia.ERROR_COLA);
+        return GuiaResponse.fromEntity(repository.save(actualizada));
     }
 
     @Transactional

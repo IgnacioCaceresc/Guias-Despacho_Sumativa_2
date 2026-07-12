@@ -75,6 +75,31 @@
       }
     },
     {
+      "name": "Actualizar guia",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenGestor}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"numeroPedido\": \"PED-1001\",\n  \"transportista\": \"Transportes Norte\",\n  \"fechaDespacho\": \"2026-06-29\",\n  \"destinatario\": \"Cliente Demo Actualizado\",\n  \"direccionDestino\": \"Los Alerces 456\",\n  \"comunaDestino\": \"Providencia\",\n  \"ciudadDestino\": \"Santiago\",\n  \"pesoKg\": 13.0,\n  \"cantidadBultos\": 4,\n  \"observaciones\": \"Cambio de direccion\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/guias/{{guiaId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "guias", "{{guiaId}}"]
+        }
+      }
+    },
+    {
       "name": "Subir guia a S3",
       "request": {
         "method": "POST",
@@ -105,6 +130,29 @@
           "raw": "{{baseUrl}}/api/guias/{{guiaId}}/descargar",
           "host": ["{{baseUrl}}"],
           "path": ["api", "guias", "{{guiaId}}", "descargar"]
+        }
+      }
+    },
+    {
+      "name": "Consumir cola RabbitMQ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenGestor}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/guias/cola/consumir?cantidad=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "guias", "cola", "consumir"],
+          "query": [
+            {
+              "key": "cantidad",
+              "value": "10"
+            }
+          ]
         }
       }
     },

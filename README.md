@@ -11,6 +11,8 @@ Backend Spring Boot para la actividad sumativa de Desarrollo Cloud Native, Seman
 - Endpoints REST para crear, subir a S3, descargar, actualizar, eliminar y consultar por transportista/fecha.
 - Persistencia con JPA y H2 para desarrollo local.
 - Servicio S3 real configurable y modo simulado para pruebas locales.
+- Integracion RabbitMQ con cola principal de guias y cola de errores.
+- Endpoint para consumir mensajes de la cola principal y persistirlos en `guias_despacho_procesadas`.
 - Dockerfile y `docker-compose.yml`.
 
 ## Roles esperados en Azure AD B2C
@@ -32,6 +34,12 @@ GUIAS_STORAGE_PATH=/tmp/guias-despacho
 S3_ENABLED=false
 S3_BUCKET=nombre-del-bucket
 AWS_REGION=us-east-1
+RABBITMQ_HOST=localhost
+RABBITMQ_PORT=5672
+RABBITMQ_USERNAME=guest
+RABBITMQ_PASSWORD=guest
+RABBIT_COLA_GUIAS=guias.cola1
+RABBIT_COLA_ERRORES=guias.cola2.errores
 ```
 
 Para usar S3 real, cambiar `S3_ENABLED=true` y entregar credenciales AWS por el mecanismo normal del SDK:
@@ -68,6 +76,15 @@ Con compose:
 docker compose up --build
 ```
 
+RabbitMQ queda disponible en:
+
+```text
+AMQP: amqp://localhost:5672
+Panel: http://localhost:15672
+Usuario: guest
+Password: guest
+```
+
 ## Endpoints
 
 Todos los endpoints bajo `/api/guias` requieren token Bearer emitido por Azure AD B2C.
@@ -75,6 +92,7 @@ Todos los endpoints bajo `/api/guias` requieren token Bearer emitido por Azure A
 ### Crear guia
 
 Requiere rol `GESTOR_GUIAS`.
+La guia se guarda localmente y se publica en la cola principal `guias.cola1`. Si falla el envio a la cola principal, se intenta enviar el mensaje a `guias.cola2.errores` y la guia queda con estado `ERROR_COLA`.
 
 ```bash
 curl -X POST http://localhost:8080/api/guias \
@@ -106,6 +124,7 @@ curl "http://localhost:8080/api/guias?transportista=Transportes%20Norte&fecha=20
 ### Actualizar guia
 
 Requiere rol `GESTOR_GUIAS`.
+Tambien publica un mensaje en la cola principal con operacion `ACTUALIZACION`.
 
 ```bash
 curl -X PUT http://localhost:8080/api/guias/1 \
@@ -152,6 +171,16 @@ curl -X DELETE http://localhost:8080/api/guias/1 \
   -H "Authorization: Bearer <TOKEN_GESTOR_GUIAS>"
 ```
 
+### Consumir cola RabbitMQ
+
+Requiere rol `GESTOR_GUIAS`.
+Consume mensajes desde `guias.cola1` y los guarda en la tabla `guias_despacho_procesadas`.
+
+```bash
+curl -X POST "http://localhost:8080/api/guias/cola/consumir?cantidad=10" \
+  -H "Authorization: Bearer <TOKEN_GESTOR_GUIAS>"
+```
+
 ## Configuracion sugerida en API Gateway
 
 Registrar rutas apuntando al DNS publico del EC2 o balanceador:
@@ -163,6 +192,7 @@ PUT    /api/guias/{id}
 DELETE /api/guias/{id}
 POST   /api/guias/{id}/subir-s3
 GET    /api/guias/{id}/descargar
+POST   /api/guias/cola/consumir
 ```
 
 El authorizer del API Gateway debe validar el JWT contra Azure AD B2C. La validacion por rol queda duplicada en Spring Security para que el backend tambien este protegido.

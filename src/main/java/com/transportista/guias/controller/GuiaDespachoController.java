@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.transportista.guias.dto.ConsumoColaResponse;
 import com.transportista.guias.dto.GuiaRequest;
 import com.transportista.guias.dto.GuiaResponse;
 import com.transportista.guias.dto.S3UploadResponse;
+import com.transportista.guias.service.GuiaColaService;
 import com.transportista.guias.service.GuiaDespachoService;
 
 @RestController
@@ -31,9 +33,11 @@ import com.transportista.guias.service.GuiaDespachoService;
 public class GuiaDespachoController {
 
     private final GuiaDespachoService service;
+    private final GuiaColaService guiaColaService;
 
-    public GuiaDespachoController(GuiaDespachoService service) {
+    public GuiaDespachoController(GuiaDespachoService service, GuiaColaService guiaColaService) {
         this.service = service;
+        this.guiaColaService = guiaColaService;
     }
 
     @PostMapping
@@ -67,6 +71,12 @@ public class GuiaDespachoController {
     @PostMapping("/{id}/subir-s3")
     public S3UploadResponse subirS3(@PathVariable Long id) {
         return service.subirS3(id);
+    }
+
+    @PostMapping("/cola/consumir")
+    public List<ConsumoColaResponse> consumirCola(@RequestParam(defaultValue = "10") Integer cantidad) {
+        int cantidadNormalizada = Math.max(1, Math.min(cantidad, 100));
+        return guiaColaService.consumirGuias(cantidadNormalizada);
     }
 
     @GetMapping("/{id}/descargar")
